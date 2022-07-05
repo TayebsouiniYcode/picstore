@@ -10,7 +10,7 @@ class Request
         $path = $_SERVER['REQUEST_URI'] ?? '/';
         $position = strpos($path, '?');
 
-        if ($position === false){
+        if ($position === false) {
             return $path;
         }
 
@@ -37,34 +37,39 @@ class Request
     {
         $body = [];
 
-        if ($this->method() === 'get')
-        {
-            foreach($_GET as $key => $value)
-            {
+        if ($this->method() === 'get') {
+            foreach ($_GET as $key => $value) {
                 $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
-        if ($this->method() === 'post')
-        {
-            $_POST['image'] = $_FILES['image']['name'] ?? '';
-            foreach($_POST as $key => $value)
-            {
-                if(!empty($_FILES['image']['name']) && $key === 'image') {
-                    $filename = $_FILES['image']['name'];
-                    $filetmpname = $_FILES['image']['tmp_name'];
+        if ($this->method() === 'post') {
+            if (!empty($_FILES['files'])) {
+                $photos = $this->getCleanPhotos($_FILES);
+                foreach ($photos as $photo) {
+                    $filename = $photo['name'];
+                    $filetmpname = $photo['tmp_name'];
                     $folder = "assets/img/";
-                    if(move_uploaded_file($filetmpname, $folder.$filename))
-                    {
-                        $body[$key] = $filename;
+                    if (move_uploaded_file($filetmpname, $folder . $filename)) {
+                        $body[$photo['name']] = $filename;
                     }
-                } else {
-                    $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
                 }
-                
+            } else {
+                $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
-
         return $body;
     }
 
+    public function getCleanPhotos(array $files)
+    {
+        $data = [];
+        $nbrPhotos = count($files['files']['name']);
+        for ($i = 0; $i < $nbrPhotos; $i++) {
+            $data[$i]['name'] = $files['files']['name'][$i];
+            $data[$i]['type'] = $files['files']['type'][$i];
+            $data[$i]['tmp_name'] = $files['files']['tmp_name'][$i];
+            $data[$i]['size'] = $files['files']['size'][$i];
+        }
+        return $data;
+    }
 }

@@ -12,5 +12,8 @@ class HomeController extends Controller
         if ($request->isGet()){
             return $this->render('home');
         }
+        if ($request->isPost()) {
+            $request->getBody();
+        }
     }
 }
