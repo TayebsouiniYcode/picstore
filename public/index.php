@@ -19,5 +19,6 @@ $config = [
 $app = new Application(dirname(__DIR__), $config);
 
 $app->router->get('/', [HomeController::class, 'index']);
+$app->router->post('/', [HomeController::class, 'index']);
 
 $app->run();
