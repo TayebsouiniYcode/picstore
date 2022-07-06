@@ -53,7 +53,7 @@ abstract class DbModel extends Model
         $tableName = $this->tableName();
         $statement = self::prepare("SELECT * FROM $tableName");
         $statement->execute();
-        $this->dataList =  $statement->fetchAll();
+        $this->dataList =  $statement->fetchAll(PDO::FETCH_OBJ);
         return true;
     }
 
